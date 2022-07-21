@@ -1,0 +1,183 @@
+
+Nosql - storing the data in organised way but not in form of rows and columns
+	e.g: mongodb
+	
+mongo db is a nosql document database.
+data in mdb is stored as documents
+documents are stored in turn as collection of documents
+
+
+
+Document - stores data in the form of field-value pair   {'name':'swapnil', 'age':27}
+
+Collection - organized store of documents- usually with common fields
+
+
+
+
+client = pymongo.MongoClient("mongodb+srv://m001-student:<password>@sandbox.eagbjnj.mongodb.net/?retryWrites=true&w=majority")
+db = client.test
+
+
+
+Mongo db stores data is BSON format as its very fast, reliable
+json is dependant on text parsing which is quite slow.
+still json data can be stored or retrieved from mongo db.
+
+Export and Import of Data in Mongodb
+	Data can be imported or exported in both JSON or BSON. It is based on requirement.
+	Commands- 
+		For Json - mongoexport - to export the data
+			   mongoimport - to import the data
+			   
+		For Bson - mongodump - export
+			- mongorestore - import data
+			
+			
+			
+			
+URI String
+
+mongodb+srv://m001:password@clusterURI.mongpodb.net/database
+
+
+mongodb+srv://m001-student:m001-mongodb-basics@sandbox.eagbjnj.mongodb.net/sample_supplies
+
+
+
+mongodump --uri "mongodb+srv://<your username>:<your password>@<your cluster>.mongodb.net/sample_supplies"
+
+mongoexport --uri="mongodb+srv://<your username>:<your password>@<your cluster>.mongodb.net/sample_supplies" --collection=sales --out=sales.json
+
+mongorestore --uri "mongodb+srv://<your username>:<your password>@<your cluster>.mongodb.net/sample_supplies"  --drop dump
+
+mongoimport --uri="mongodb+srv://<your username>:<your password>@<your cluster>.mongodb.net/sample_supplies" --drop sales.json
+
+
+
+For Find Command
+mongo "mongodb+srv://m001-student:m001-mongodb-basics@sandbox.eagbjnj.mongodb.net/admin"
+
+
+show dbs
+
+use sample_training
+
+show collections
+
+db.zips.find({"state": "NY"}).pretty()
+
+
+INSERT a Document
+db.inspections.findOne();
+db.inspections.insert()
+
+
+
+update adocument
+
+db.zips.updateMany({ "city": "HUDSON" }, { "$inc": { "pop": 10 } })
+	increment by 10 in specified field
+	
+db.zips.updateOne({ "zip": "12534" }, { "$set": { "pop": 17630 } })
+	set pop field to specified value or can create a new field if field name doesn't exist in document
+	
+	
+db.grades.updateOne({ "student_id": 250, "class_id": 339 },
+                    { "$push": { "scores": { "type": "extra credit",
+                                             "score": 100 }
+                                }
+                     })
+                     
+                     push operator also does the same
+                     
+                     
+MQL Operators
+
+Update Operators - $inc, $set, $inc
+Query Operators - 
+Comparison Operators 
+	$eq and $neq
+	$gt and $lt
+	$gte and $lte
+
+
+
+
+Projection - selected fields are shown
+
+db.listingsAndReviews.find({ "amenities": "Wifi" },
+                           { "price": 1, "address": 1,
+                             "_id": 0, "maximum_nights":0 }).pretty()
+
+
+db.grades.find({ "class_id": 431 },
+               { "scores": { "$elemMatch": { "score": { "$gt": 85 } } }
+             }).pretty()
+             
+             
+             
+Array Operators and Subdocuments
+
+How to get to the array field in nested documents --- dot notation
+
+db.companies.find({ "relationships.0.person.last_name": "Zuckerberg" },
+                  { "name": 1 }).pretty()
+
+db.companies.find({ "relationships.0.person.first_name": "Mark",
+                    "relationships.0.title": { "$regex": "CEO" } },
+                  { "name": 1 }).count()
+
+
+db.companies.find({ "relationships.0.person.first_name": "Mark",
+                    "relationships.0.title": {"$regex": "CEO" } },
+                  { "name": 1 }).pretty()
+
+db.companies.find({ "relationships":
+                      { "$elemMatch": { "is_past": true,
+                                        "person.first_name": "Mark" } } },
+                  { "name": 1 }).pretty()
+
+db.companies.find({ "relationships":
+                      { "$elemMatch": { "is_past": true,
+                                        "person.first_name": "Mark" } } },
+                  { "name": 1 }).count()
+
+
+
+Aggregate
+
+
+db.listingsAndReviews.aggregate([
+                                  { "$match": { "amenities": "Wifi" } },
+                                  { "$project": { "price": 1,
+                                                  "address": 1,
+                                                  "_id": 0 }}]).pretty()
+                                                  
+COPY
+db.listingsAndReviews.aggregate([
+                                  { "$project": { "address": 1, "_id": 0 }},
+                                  { "$group": { "_id": "$address.country",
+                                                "count": { "$sum": 1 } } }
+                                ])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
